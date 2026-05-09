@@ -2,7 +2,9 @@
 
 PIDFILE="/tmp/gsr-replay.pid"
 
-OUTPUT_DIR="/mnt/gamedrive/Clips"
+OUTPUT_DIR="/mnt/hdd2/Screencap/linux"
+
+OUTPUT="DP-3"
 
 BITRATE="12M"
 
@@ -10,17 +12,19 @@ mkdir -p "$OUTPUT_DIR"
 
 start_recorder() {
 	gpu-screen-recorder \
-		-w focused \
+		-w "$OUTPUT" \
 		-f 60 \
-		-k h264_vaapi \
-		-q medium \
-		--video-bitrate "$BITRATE" \
+		-k hevc \
+		-bm cbr \
+		-q 12000 \
 		-ac opus \
 		-a default_output \
+		-a alsa_input.usb-ZOOM_Corporation_H2-00.analog-stereo \
 		-c mkv \
 		-cursor no \
-		-ro 60 \
-		-o "$OUTPUT_DIR" \
+		-r 60 \
+		-ro "$OUTPUT_DIR" \
+		-o "$OUTPUT_DIR/clip" \
 		> /tmp/gsr.log 2>&1 &
 
 	echo $! > "$PIDFILE"
