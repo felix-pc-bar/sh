@@ -1,0 +1,1 @@
+mako mission-centre nautilus neovim zsh zoxide niri rofi grim slurp satty kitty hyprlock waybar calibre btdu chezmoi cava
