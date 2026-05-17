@@ -1,0 +1,2 @@
+hyprlock
+echo "hello world!"

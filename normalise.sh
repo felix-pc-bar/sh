@@ -63,7 +63,7 @@ fi
 
 [[ $DRY_RUN -eq 1 ]] && echo -e "${YLW}DRY RUN — no files will be written${RST}\n"
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR" "$FINAL_DIR"
 
 # ── Print config summary ──────────────────────────────────────────────────────
 echo -e "${BLD}Settings${RST}"
@@ -76,7 +76,7 @@ echo -e "  JPEG quality   : ${CYN}$JPEG_QUALITY${RST}"
 echo ""
 
 # ── Process files ─────────────────────────────────────────────────────────────
-processed=0; skipped=0; errors=0
+processed=0; skipped=0; errors=0; gowall_done=0; gowall_skipped=0
 
 # Build a glob that covers all extensions case-insensitively
 shopt -s nullglob nocaseglob
@@ -97,89 +97,105 @@ for img in "${all_files[@]}"; do
     [ -f "$img" ] || continue
 
     filename=$(basename "$img")
+    stem="${filename%.*}"
     ext_lower="${filename##*.}"
     ext_lower="${ext_lower,,}"
     outpath="$OUTPUT_DIR/$filename"
 
-    # ── Measure perceptual (luminosity-weighted) brightness ──────────────────
-    # Convert to grayscale using standard Rec.709 luminance weights, get mean.
-    mean=$(magick "$img" -colorspace Gray -format "%[fx:mean]" info: 2>/dev/null)
-
-    if [ -z "$mean" ]; then
-        echo -e "  ${RED}ERROR${RST}  $filename — could not read (skipping)"
-        (( errors++ ))
-        continue
-    fi
-
-    printf "%-50s  mean=${CYN}%.3f${RST}  " "$filename" "$mean"
-
-    # ── Decision: dark enough to leave alone? ────────────────────────────────
-    is_dark=$(awk "BEGIN { print ($mean <= $DARK_THRESHOLD) ? 1 : 0 }")
-
-    if [ "$is_dark" = "1" ]; then
-        if [ $DRY_RUN -eq 0 ]; then
-            cp "$img" "$outpath"
-        fi
-        echo -e "${GRY}→ unchanged${RST}"
+    # ── Skip entirely if final output already exists ──────────────────────────
+    # gowall may change the extension, so match on stem only.
+    shopt -s nullglob
+    final_matches=( "$FINAL_DIR/${stem}".* )
+    shopt -u nullglob
+    if [ ${#final_matches[@]} -gt 0 ]; then
+        printf "%-50s  ${GRY}→ both stages done, skipping${RST}\n" "$filename"
         (( skipped++ ))
         continue
     fi
 
-    # ── Interpolate scale factor ─────────────────────────────────────────────
-    #   mean == DARK_THRESHOLD  →  scale = 1.0  (imperceptible change)
-    #   mean == 1.0             →  scale = MIN_SCALE  (maximum darkening)
-    #   Linear ramp between those two anchors.
-    scale=$(awk "BEGIN {
-        ratio = ($mean - $DARK_THRESHOLD) / (1.0 - $DARK_THRESHOLD)
-        if (ratio < 0) ratio = 0
-        if (ratio > 1) ratio = 1
-        sf = 1.0 - ratio * (1.0 - $MIN_SCALE)
-        printf \"%.4f\", sf
-    }")
+    # ── Check if IM stage is already done ────────────────────────────────────
+    im_done=0
+    [ -f "$outpath" ] && im_done=1
 
-    # ── Build and run the ImageMagick command ────────────────────────────────
-    # -evaluate multiply scales all RGB channels uniformly (preserves hue).
-    # -gamma reshapes the tone curve afterwards if GAMMA != 1.0.
-    # -quality only affects JPEG/WebP lossy output.
-    if [ $DRY_RUN -eq 0 ]; then
-        magick "$img" \
-            -evaluate multiply "$scale" \
-            -gamma "$GAMMA" \
-			-modulate 100,140,100 \
-            -quality "$JPEG_QUALITY" \
-            "$outpath"
-        status=$?
+    if [ "$im_done" = "0" ]; then
+        # ── Measure perceptual (luminosity-weighted) brightness ──────────────
+        # Convert to grayscale using standard Rec.709 luminance weights, get mean.
+        mean=$(magick "$img" -colorspace Gray -format "%[fx:mean]" info: 2>/dev/null)
+
+        if [ -z "$mean" ]; then
+            echo -e "  ${RED}ERROR${RST}  $filename — could not read (skipping)"
+            (( errors++ ))
+            continue
+        fi
+
+        printf "%-50s  mean=${CYN}%.3f${RST}  " "$filename" "$mean"
+
+        # ── Decision: dark enough to leave alone? ────────────────────────────
+        is_dark=$(awk "BEGIN { print ($mean <= $DARK_THRESHOLD) ? 1 : 0 }")
+
+        if [ "$is_dark" = "1" ]; then
+            if [ $DRY_RUN -eq 0 ]; then
+                cp "$img" "$outpath"
+            fi
+            echo -ne "${GRY}→ unchanged  ${RST}"
+            (( processed++ ))  # counts as "IM done", still needs gowall below
+        else
+            # ── Interpolate scale factor ─────────────────────────────────────
+            #   mean == DARK_THRESHOLD  →  scale = 1.0  (imperceptible change)
+            #   mean == 1.0             →  scale = MIN_SCALE  (maximum darkening)
+            scale=$(awk "BEGIN {
+                ratio = ($mean - $DARK_THRESHOLD) / (1.0 - $DARK_THRESHOLD)
+                if (ratio < 0) ratio = 0
+                if (ratio > 1) ratio = 1
+                sf = 1.0 - ratio * (1.0 - $MIN_SCALE)
+                printf \"%.4f\", sf
+            }")
+
+            # ── Run ImageMagick ──────────────────────────────────────────────
+            if [ $DRY_RUN -eq 0 ]; then
+                magick "$img" \
+                    -evaluate multiply "$scale" \
+                    -gamma "$GAMMA" \
+                    -modulate 100,140,100 \
+                    -quality "$JPEG_QUALITY" \
+                    "$outpath"
+                status=$?
+            else
+                status=0
+            fi
+
+            if [ "$status" -ne 0 ]; then
+                echo -e "${RED}→ IM FAILED (error $status)${RST}"
+                (( errors++ ))
+                continue  # don't attempt gowall on a failed file
+            fi
+            echo -ne "${GRN}→ darkened (scale=${scale})  ${RST}"
+            (( processed++ ))
+        fi
     else
-        status=0
+        printf "%-50s  ${YLW}→ IM cached  ${RST}" "$filename"
     fi
 
-    if [ "$status" -ne 0 ]; then
-        echo -e "${RED}→ FAILED (ImageMagick error $status)${RST}"
+    # ── gowall stage ─────────────────────────────────────────────────────────
+    if [ $DRY_RUN -eq 0 ]; then
+        gowall convert "$outpath" -t gruvbox-ex --output "$FINAL_DIR"
+        gw_status=$?
+    else
+        gw_status=0
+    fi
+
+    if [ "$gw_status" -ne 0 ]; then
+        echo -e "${RED}→ gowall FAILED (error $gw_status)${RST}"
         (( errors++ ))
     else
-        echo -e "${GRN}→ darkened${RST}  scale=${BLD}${scale}${RST}"
-        (( processed++ ))
+        echo -e "${GRN}→ gowall done${RST}"
     fi
 done
-
-gowall convert --dir "$OUTPUT_DIR" -t gruvbox-ex --output "$FINAL_DIR"
-
-# shopt -s nullglob nocaseglob
-# declare -a dark_files=()
-# for ext in $EXTENSIONS; do
-#     dark_files+=( "$OUTPUT_DIR"/*.$ext )
-# done
-# shopt -u nullglob nocaseglob
-#
-# for img in "${all_files[@]}"; do
-#     outpath="$FINAL_DIR/$filename"
-# 	gowall convert img -t gruvbox --output "$outpath"
-# done
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BLD}Done.${RST}"
-echo -e "  ${GRN}Darkened  : $processed${RST}"
-echo -e "  ${GRY}Unchanged : $skipped${RST}"
-[[ $errors -gt 0 ]] && echo -e "  ${RED}Errors    : $errors${RST}"
-[[ $DRY_RUN -eq 0 ]] && echo -e "  Output    : ${CYN}$OUTPUT_DIR${RST}"
+echo -e "  ${GRN}IM processed : $processed${RST}"
+echo -e "  ${GRY}Fully cached : $skipped${RST}"
+[[ $errors -gt 0 ]] && echo -e "  ${RED}Errors       : $errors${RST}"
+[[ $DRY_RUN -eq 0 ]] && echo -e "  Output       : ${CYN}$FINAL_DIR${RST}"
