@@ -51,7 +51,7 @@ GRUB_THEME="/usr/share/grub/themes/win-tux-dualboot-fullscreen/theme.txt"
 # custom chord (rubbish)
 #GRUB_INIT_TUNE="2000 130 2 329 1 493 1 370 1 440 1 587 1 493 1 329 1 0 1"
 #maj7 (daily)
-GRUB_INIT_TUNE="1300 261 1 329 1 392 1 493 1"
+GRUB_INIT_TUNE="1300 493 1 622 1 740 1 932 1""
 # mario powerup
 #GRUB_INIT_TUNE="1750 523 1 392 1 523 1 659 1 784 1 1047 1 784 1 415 1 523 1 622 1 831 1 622 1 831 1 1046 1 1244 1 1661 1 1244 1 466 1 587 1 698 1 932 1 1185 1 1397 1 1865 1 1397 1"
 # eek
