@@ -178,7 +178,7 @@ for img in "${all_files[@]}"; do
 
     # ── gowall stage ─────────────────────────────────────────────────────────
     if [ $DRY_RUN -eq 0 ]; then
-        gowall convert "$outpath" -t gruvbox-ex --output "$FINAL_DIR"
+        gowall convert "$outpath" -t greyscale --output "$FINAL_DIR"
         gw_status=$?
     else
         gw_status=0
