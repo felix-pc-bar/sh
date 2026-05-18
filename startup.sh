@@ -18,6 +18,6 @@ hyprlock >/dev/null 2>&1 || exit 1
 awww clear 1d2021 && sleep 0.05 && /home/felix/repos/sh/wallsplit.sh &
 
 sleep 2
-kitty --hold fastfetch --color "#fe8019" --logo-color-1 "#458588" --logo-color-2 "#458588" &
+kitty --hold fastfetch --color "#ffffff" --logo-color-1 "#e6e6e6" --logo-color-2 "#bbbbbb" &
 
 exit 0
