@@ -17,7 +17,7 @@ hyprlock >/dev/null 2>&1 || exit 1
 # then immediately kick off the wall animation in the background
 awww clear 1d2021 && sleep 0.05 && /home/felix/repos/sh/wallsplit.sh &
 
-sleep 2
+sleep 4
 kitty --hold fastfetch --color "#ffffff" --logo-color-1 "#e6e6e6" --logo-color-2 "#bbbbbb" &
 
 exit 0
