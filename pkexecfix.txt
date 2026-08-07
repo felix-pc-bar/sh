@@ -1,1 +1,2 @@
 sudo -E QT_QPA_PLATFORM=xcb gparted
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &

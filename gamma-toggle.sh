@@ -13,7 +13,7 @@ set_normal() {
 }
 
 set_night() {
-	busctl --user set-property $SERVICE $OBJ $IFACE Brightness d 0.4
+	busctl --user set-property $SERVICE $OBJ $IFACE Brightness d 0.2
 	busctl --user set-property $SERVICE $OBJ $IFACE Temperature q 4500
 	echo "night" > "$STATE_FILE"
 }
