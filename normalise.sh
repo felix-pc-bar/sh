@@ -13,14 +13,32 @@
 #    ./darken-wallpapers.sh                          # uses defaults below
 #    ./darken-wallpapers.sh ~/walls ~/walls-dark
 #    ./darken-wallpapers.sh ~/walls ~/walls-dark --dry-run
+#    ./darken-wallpapers.sh ~/walls ~/walls-framed --resize-only
+#        Skip stages 1 and 2. Frame the original images as they are.
+#        The second path (default: ./framed-original/) is where they go.
 # ═══════════════════════════════════════════════════════════════════════════════
+
+# ─── ARGUMENTS ───────────────────────────────────────────────────────────────
+
+DRY_RUN=0
+RESIZE_ONLY=0   # 1 = skip darken and gowall; just frame the originals
+positional=()
+for arg in "$@"; do
+	case "$arg" in
+		--dry-run)     DRY_RUN=1 ;;
+		--resize-only) RESIZE_ONLY=1 ;;
+		-*)            echo "ERROR: unknown option '$arg'" >&2; exit 1 ;;
+		*)             positional+=( "$arg" ) ;;
+	esac
+done
 
 # ─── PARAMETERS — tweak these ────────────────────────────────────────────────
 
-INPUT_DIR="${1:-$PWD}"        # Source folder of images
-OUTPUT_DIR="${2:-$PWD/darker/}"  # Where darkened images are saved
+INPUT_DIR="${positional[0]:-$PWD}"        # Source folder of images
+OUTPUT_DIR="${positional[1]:-$PWD/darker/}"  # Where darkened images are saved
 FINAL_DIR="$PWD/final/"       # Where gowall output is saved
 RESIZED_DIR="$PWD/resized/"   # Where the framed, resized PNGs are saved
+FRAMED_DIR="${positional[1]:-$PWD/framed-original/}"  # --resize-only: framed originals (no darken, no recolour)
 
 # Brightness threshold (0.0–1.0 perceptual luminance scale):
 # Images at or below this mean brightness are copied untouched.
@@ -56,21 +74,18 @@ EXTENSIONS="jpg jpeg png webp tiff"
 RESIZE_WIDTH=1920
 RESIZE_HEIGHT=1080
 RESIZE_BG_COLOUR="#1d1816"   # frame colour, any ImageMagick-recognised value
-RESIZE_VERT_BORDER=0.05      # min. fraction of height left blank, top & bottom
+RESIZE_VERT_BORDER=0.15      # min. fraction of height left blank, top & bottom
 RESIZE_HORIZ_BORDER=0.05     # min. fraction of width left blank, left & right
 
 # ─── END OF PARAMETERS ───────────────────────────────────────────────────────
-
-DRY_RUN=0
-[[ "${*}" == *"--dry-run"* ]] && DRY_RUN=1
 
 # Colour output helpers
 RED='\033[0;31m'; GRN='\033[0;32m'; YLW='\033[0;33m'
 CYN='\033[0;36m'; GRY='\033[0;37m'; RST='\033[0m'; BLD='\033[1m'
 
 # ── Sanity checks ─────────────────────────────────────────────────────────────
-if ! command -v convert &>/dev/null; then
-	echo -e "${RED}ERROR: ImageMagick 'convert' not found. Install it first.${RST}"
+if ! command -v magick &>/dev/null; then
+	echo -e "${RED}ERROR: ImageMagick 'magick' not found. Install it first.${RST}"
 	exit 1
 fi
 
@@ -81,16 +96,25 @@ fi
 
 [[ $DRY_RUN -eq 1 ]] && echo -e "${YLW}DRY RUN — no files will be written${RST}\n"
 
-mkdir -p "$OUTPUT_DIR" "$FINAL_DIR" "$RESIZED_DIR"
+if [[ $RESIZE_ONLY -eq 1 ]]; then
+	mkdir -p "$FRAMED_DIR"
+else
+	mkdir -p "$OUTPUT_DIR" "$FINAL_DIR" "$RESIZED_DIR"
+fi
 
 # ── Print config summary ──────────────────────────────────────────────────────
 echo -e "${BLD}Settings${RST}"
 echo -e "  Input dir      : ${CYN}$INPUT_DIR${RST}"
-echo -e "  Output dir     : ${CYN}$OUTPUT_DIR${RST}"
-echo -e "  Dark threshold : ${CYN}$DARK_THRESHOLD${RST}  (images ≤ this are left alone)"
-echo -e "  Min scale      : ${CYN}$MIN_SCALE${RST}   (brightest images multiplied by this)"
-echo -e "  Gamma          : ${CYN}$GAMMA${RST}    (post-scale tone curve; 1.0 = off)"
-echo -e "  JPEG quality   : ${CYN}$JPEG_QUALITY${RST}"
+if [[ $RESIZE_ONLY -eq 1 ]]; then
+	echo -e "  Mode           : ${CYN}resize only${RST}  (no darken, no gowall)"
+	echo -e "  Framed dir     : ${CYN}$FRAMED_DIR${RST}"
+else
+	echo -e "  Output dir     : ${CYN}$OUTPUT_DIR${RST}"
+	echo -e "  Dark threshold : ${CYN}$DARK_THRESHOLD${RST}  (images ≤ this are left alone)"
+	echo -e "  Min scale      : ${CYN}$MIN_SCALE${RST}   (brightest images multiplied by this)"
+	echo -e "  Gamma          : ${CYN}$GAMMA${RST}    (post-scale tone curve; 1.0 = off)"
+	echo -e "  JPEG quality   : ${CYN}$JPEG_QUALITY${RST}"
+fi
 echo -e "  Resize canvas  : ${CYN}${RESIZE_WIDTH}x${RESIZE_HEIGHT}${RST}"
 echo -e "  Resize frame   : ${CYN}$RESIZE_BG_COLOUR${RST}"
 echo -e "  Resize v-margin: ${CYN}$RESIZE_VERT_BORDER${RST}  (min. fraction of height, top & bottom)"
@@ -98,6 +122,24 @@ echo -e "  Resize h-margin: ${CYN}$RESIZE_HORIZ_BORDER${RST}  (min. fraction of 
 echo ""
 
 # ── Process files ─────────────────────────────────────────────────────────────
+# BOX is the maximum space the image may occupy on the canvas.
+# -resize fits within this box preserving aspect ratio, so whichever
+# dimension is the tighter constraint wins, and the margin on the
+# other axis ends up larger than the configured minimum.
+box_w=$(awk "BEGIN { print int($RESIZE_WIDTH * (1 - 2 * $RESIZE_HORIZ_BORDER)) }")
+box_h=$(awk "BEGIN { print int($RESIZE_HEIGHT * (1 - 2 * $RESIZE_VERT_BORDER)) }")
+
+# frame_image SRC DEST — fit SRC inside the box, centre it on the canvas, save as DEST.
+frame_image() {
+	magick \
+		-size "${RESIZE_WIDTH}x${RESIZE_HEIGHT}" \
+		canvas:"$RESIZE_BG_COLOUR" \
+		\( "$1" -resize "${box_w}x${box_h}" \) \
+		-gravity center \
+		-composite \
+		"$2"
+}
+
 processed=0; skipped=0; errors=0; resized=0; resize_cached=0
 
 # Build a glob that covers all extensions case-insensitively
@@ -121,6 +163,26 @@ for img in "${all_files[@]}"; do
 	filename=$(basename "$img")
 	stem="${filename%.*}"
 	outpath="$OUTPUT_DIR/$filename"
+
+	# ── --resize-only: frame the original, skip darken and gowall ─────────────
+	if [ "$RESIZE_ONLY" = "1" ]; then
+		framed_out="$FRAMED_DIR/${stem}.png"
+		printf "%-50s  " "$filename"
+
+		if [ -f "$framed_out" ]; then
+			echo -e "${GRY}→ framed, cached${RST}"
+			(( skipped++ ))
+		elif [ $DRY_RUN -eq 1 ]; then
+			echo -e "${YLW}→ would frame onto ${RESIZE_WIDTH}x${RESIZE_HEIGHT} canvas${RST}"
+		elif frame_image "$img" "$framed_out"; then
+			echo -e "${GRN}→ framed${RST}"
+			(( resized++ ))
+		else
+			echo -e "${RED}→ frame FAILED${RST}"
+			(( errors++ ))
+		fi
+		continue
+	fi
 
 	# gowall may change the extension, so match final/resized output on stem only.
 	shopt -s nullglob
@@ -245,20 +307,7 @@ for img in "${all_files[@]}"; do
 
 	resized_out="$RESIZED_DIR/${stem}.png"
 
-	# BOX is the maximum space the image may occupy on the canvas.
-	# -resize fits within this box preserving aspect ratio, so whichever
-	# dimension is the tighter constraint wins, and the margin on the
-	# other axis ends up larger than the configured minimum.
-	box_w=$(awk "BEGIN { print int($RESIZE_WIDTH * (1 - 2 * $RESIZE_HORIZ_BORDER)) }")
-	box_h=$(awk "BEGIN { print int($RESIZE_HEIGHT * (1 - 2 * $RESIZE_VERT_BORDER)) }")
-
-	magick \
-		-size "${RESIZE_WIDTH}x${RESIZE_HEIGHT}" \
-		canvas:"$RESIZE_BG_COLOUR" \
-		\( "${final_input[0]}" -resize "${box_w}x${box_h}" \) \
-		-gravity center \
-		-composite \
-		"$resized_out"
+	frame_image "${final_input[0]}" "$resized_out"
 	resize_status=$?
 
 	if [ "$resize_status" -ne 0 ]; then
@@ -273,12 +322,21 @@ done
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BLD}Done.${RST}"
-echo -e "  ${GRN}IM processed : $processed${RST}"
-echo -e "  ${GRN}Resized      : $resized${RST}"
-[[ $resize_cached -gt 0 ]] && echo -e "  ${GRY}Resize cached: $resize_cached${RST}"
-echo -e "  ${GRY}Fully cached : $skipped${RST}"
-[[ $errors -gt 0 ]] && echo -e "  ${RED}Errors       : $errors${RST}"
-if [[ $DRY_RUN -eq 0 ]]; then
-	echo -e "  Framed output : ${CYN}$RESIZED_DIR${RST}"
-	echo -e "  Gowall output : ${CYN}$FINAL_DIR${RST}"
+if [[ $RESIZE_ONLY -eq 1 ]]; then
+	echo -e "  ${GRN}Framed       : $resized${RST}"
+	echo -e "  ${GRY}Cached       : $skipped${RST}"
+	[[ $errors -gt 0 ]] && echo -e "  ${RED}Errors       : $errors${RST}"
+	if [[ $DRY_RUN -eq 0 ]]; then
+		echo -e "  Framed output : ${CYN}$FRAMED_DIR${RST}"
+	fi
+else
+	echo -e "  ${GRN}IM processed : $processed${RST}"
+	echo -e "  ${GRN}Resized      : $resized${RST}"
+	[[ $resize_cached -gt 0 ]] && echo -e "  ${GRY}Resize cached: $resize_cached${RST}"
+	echo -e "  ${GRY}Fully cached : $skipped${RST}"
+	[[ $errors -gt 0 ]] && echo -e "  ${RED}Errors       : $errors${RST}"
+	if [[ $DRY_RUN -eq 0 ]]; then
+		echo -e "  Framed output : ${CYN}$RESIZED_DIR${RST}"
+		echo -e "  Gowall output : ${CYN}$FINAL_DIR${RST}"
+	fi
 fi

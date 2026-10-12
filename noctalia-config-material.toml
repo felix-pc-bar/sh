@@ -1,0 +1,638 @@
+[audio]
+enable_overdrive = true
+
+[backdrop]
+blur_intensity = 0.0
+tint_intensity = 0.0
+
+[bar.default]
+background_opacity = 0.65999998524785042
+capsule_thickness = 0.6699999887496233
+center = []
+end = [
+    "widget_4",
+    "audio_visualizer",
+    "group:g1",
+    "widget_3",
+    "widget",
+    "widget_2",
+    "bar",
+    "clipboard",
+    "group:g2",
+    "bluetooth",
+    "brightness",
+    "battery",
+    "control-center",
+    "clock",
+    "date",
+    "notifications"
+]
+margin_ends = 0
+padding = 9
+panel_overlap = 0
+radius = 0
+start = [ "text_2", "launcher", "workspaces", "tray", "active_window" ]
+thickness = 28
+widget_spacing = 12
+
+    [[bar.default.capsule_group]]
+    accordion = false
+    accordion_direction = "end"
+    enabled = false
+    fill = "surface_variant"
+    id = "g1"
+    members = [ "cpu", "temp", "network_tx", "ram", "network_rx" ]
+    opacity = 1.0
+    padding = 8.0
+
+    [[bar.default.capsule_group]]
+    accordion = false
+    accordion_direction = "end"
+    enabled = true
+    fill = "surface_variant"
+    id = "g2"
+    members = [ "network", "volume", "session" ]
+    opacity = 1.0
+    padding = 8.0
+
+[calendar]
+enabled = true
+
+    [calendar.account.ironbar129]
+    name = "ironbar129"
+    type = "google"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "nightlight"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "keyboard_layout"
+
+[[control_center.shortcuts]]
+type = "wallpaper"
+
+[desktop_widgets]
+schema_version = 2
+widget_order = [
+    "desktop-widget-000000000000000b",
+    "desktop-widget-000000000000000c",
+    "desktop-widget-000000000000000d",
+    "desktop-widget-000000000000000e",
+    "desktop-widget-000000000000000f",
+    "desktop-widget-0000000000000010",
+    "desktop-widget-0000000000000011",
+    "desktop-widget-0000000000000012"
+]
+
+    [desktop_widgets.grid]
+    cell_size = 64
+    major_interval = 4
+    visible = false
+
+    [desktop_widgets.widget.desktop-widget-000000000000000b]
+    box_height = 192.0
+    box_width = 832.0
+    cx = 960.0
+    cy = 540.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "audio_visualizer"
+
+        [desktop_widgets.widget.desktop-widget-000000000000000b.settings]
+        background_opacity = 0.32000000000000001
+        background_radius = 16
+        bands = 64
+        show_when_idle = true
+
+    [desktop_widgets.widget.desktop-widget-000000000000000c]
+    box_height = 192.0
+    box_width = 256.0
+    cx = 401.22265625
+    cy = 539.93359375
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget.desktop-widget-000000000000000c.settings]
+        background_opacity = 0.32000000000000001
+        display = "graph"
+        gauge_layout = "horizontal"
+        shadow = true
+        show_label = true
+        stat = "cpu_usage"
+        stat2 = "cpu_temp"
+
+    [desktop_widgets.widget.desktop-widget-000000000000000d]
+    box_height = 192.0
+    box_width = 256.0
+    cx = 1519.21875
+    cy = 540.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget.desktop-widget-000000000000000d.settings]
+        background_opacity = 0.32000000000000001
+        stat = "net_rx"
+        stat2 = "net_tx"
+
+    [desktop_widgets.widget.desktop-widget-000000000000000e]
+    box_height = 96.5625
+    box_width = 367.5234375
+    cx = 960.0
+    cy = 540.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [desktop_widgets.widget.desktop-widget-000000000000000e.settings]
+        background = false
+        background_opacity = 0.38
+        font_family = "Inter ExtraBold"
+        format = "{:%H:%M:%S}"
+
+    [desktop_widgets.widget.desktop-widget-000000000000000f]
+    box_height = 192.0
+    box_width = 832.0
+    cx = 960.0
+    cy = 540.0
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "audio_visualizer"
+
+        [desktop_widgets.widget.desktop-widget-000000000000000f.settings]
+        background_opacity = 0.32000000000000001
+        background_radius = 16
+        bands = 64
+        show_when_idle = true
+
+    [desktop_widgets.widget.desktop-widget-0000000000000010]
+    box_height = 192.0
+    box_width = 256.0
+    cx = 401.22265625
+    cy = 539.93359375
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000010.settings]
+        background_opacity = 0.32000000000000001
+        stat = "cpu_usage"
+        stat2 = "cpu_temp"
+
+    [desktop_widgets.widget.desktop-widget-0000000000000011]
+    box_height = 192.0
+    box_width = 256.0
+    cx = 1519.421875
+    cy = 540.01171875
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000011.settings]
+        background_opacity = 0.32000000000000001
+        stat = "net_rx"
+        stat2 = "net_tx"
+
+    [desktop_widgets.widget.desktop-widget-0000000000000012]
+    box_height = 96.5625
+    box_width = 367.5234375
+    cx = 960.0
+    cy = 540.0
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000012.settings]
+        background = false
+        background_opacity = 0.38
+        font_family = "Inter ExtraBold"
+        format = "{:%H:%M:%S}"
+
+[dock]
+active_monitor_only = true
+background_opacity = 0.669999985024333
+cross_axis_padding = 0
+enabled = true
+icon_size = 24
+inactive_opacity = 0.99999997764825821
+item_spacing = 0
+magnification_scale = 2.0
+main_axis_padding = 2
+pinned = [
+    "firefox",
+    "org.gnome.Nautilus",
+    "kitty",
+    "discord",
+    "steam",
+    "obsidian",
+    "blender",
+    "code",
+    "nvim",
+    "audacity",
+    "dev.noctalia.Noctalia"
+]
+reserve_space = false
+show_dots = true
+smart_auto_hide = true
+
+[hooks]
+started = "/home/felix/repos/sh/replay-buffer.sh start"
+
+[location]
+address = "Edinburgh, Scotland"
+
+[lockscreen]
+blurred_desktop = true
+monitors = [ "DP-3" ]
+
+[lockscreen_widgets]
+enabled = true
+schema_version = 2
+widget_order = [
+    "lockscreen-login-box@HDMI-A-1",
+    "lockscreen-login-box@DP-3",
+    "lockscreen-widget-0000000000000001",
+    "lockscreen-widget-0000000000000002",
+    "lockscreen-widget-0000000000000003",
+    "lockscreen-widget-0000000000000004",
+    "lockscreen-widget-0000000000000005",
+    "lockscreen-widget-0000000000000007"
+]
+
+    [lockscreen_widgets.grid]
+    cell_size = 8
+    major_interval = 4
+    visible = false
+
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-3".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    box_height = 96.0
+    box_width = 288.0
+    cx = 960.0
+    cy = 287.53515625
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
+        background_radius = 12
+        center_text = true
+        clock_style = "digital"
+        font_family = "Iosevka NFP Medium"
+        format = "{:%H:%M:%S}"
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000002]
+    box_height = 129.3828125
+    box_width = 398.31640625
+    cx = 1164.470703125
+    cy = 611.18359375
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "audio_visualizer"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000002.settings]
+        bands = 32
+        show_when_idle = true
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000003]
+    box_height = 128.0
+    box_width = 192.0
+    cx = 651.0
+    cy = 612.859375
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000003.settings]
+        stat = "cpu_usage"
+        stat2 = "cpu_temp"
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000004]
+    box_height = 130.43359375
+    box_width = 194.72265625
+    cx = 856.998046875
+    cy = 611.470703125
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000004.settings]
+        stat = "net_tx"
+        stat2 = "net_rx"
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000005]
+    box_height = 168.61773681640625
+    box_width = 398.55462646484375
+    cx = 1164.848876953125
+    cy = 451.36575317382812
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 3.0785799026489258e-05
+    type = "media_player"
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000007]
+    box_height = 168.70703125
+    box_width = 398.82421875
+    cx = 755.603515625
+    cy = 451.521484375
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "volume"
+
+[nightlight]
+enabled = true
+force = true
+temperature_day = 6600
+temperature_night = 4500
+
+[osd.kinds]
+bluetooth = false
+brightness = false
+keyboard_backlight = false
+lock_keys = false
+media = false
+privacy = false
+volume = false
+wifi = false
+
+[plugin_settings."aabidk20/yt-music"]
+panel_position = "center"
+
+[plugin_settings."ashur-d/wallpaper-widget"]
+close_on_apply = true
+notify_on_change = false
+
+[plugin_settings."yuuto/arch-updater"]
+assume_yes = true
+auto_check_hours = 6
+notify_on_updates = false
+show_activity_graph = true
+
+[plugins]
+enabled = [
+    "yuuto/arch-updater",
+    "thepunkoff/pomodoro",
+    "weinguyen/procmon",
+    "raycursive/discord-voice",
+    "ashur-d/wallpaper-widget",
+    "luochen1990/niri-ribbon",
+    "aabidk20/yt-music",
+    "tordex/processes"
+]
+
+[shell]
+corner_radius_scale = 1.0000000149011612
+font_family = "Ubuntu Condensed"
+niri_overview_type_to_launch_enabled = true
+password_style = "random"
+polkit_agent = true
+screen_time_enabled = true
+time_format = "{:%H:%M:%S}"
+
+    [shell.launcher]
+    app_grid = true
+
+        [shell.launcher.providers.calculator]
+        prefix = ""
+
+    [shell.panel]
+    control_center_placement = "floating"
+    transparency_mode = "glass"
+
+[system.monitor]
+cpu_temp_activity_threshold = 65
+cpu_temp_critical_threshold = 80
+disk_free_critical_threshold = 90
+disk_used_pct_critical_threshold = 90
+gpu_temp_critical_threshold = 75
+gpu_usage_critical_threshold = 90
+net_rx_critical_threshold = 15.0
+net_tx_critical_threshold = 15.0
+ram_pct_critical_threshold = 80
+
+[theme]
+builtin = "Ayu"
+community_palette = "Oxide"
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "vibrant"
+
+    [theme.templates]
+    builtin_ids = [ "btop", "cava", "gtk3", "gtk4", "kcolorscheme", "kitty", "niri", "qt", "scroll" ]
+    community_ids = [
+        "discord",
+        "blender",
+        "darktable",
+        "gimp",
+        "libreoffice",
+        "obsidian",
+        "vscode",
+        "steam",
+        "fastfetch",
+        "zathura",
+        "lazygit",
+        "yazi"
+    ]
+
+[wallpaper]
+directory = "/home/felix/Pictures/wallpaper-pano"
+fill_color = "on_primary"
+fill_mode = "span"
+transition = [ "wipe" ]
+transition_on_startup = true
+
+    [wallpaper.automation]
+    enabled = true
+    recursive = false
+
+    [wallpaper.default]
+    path = "/home/felix/Pictures/wallpaper-pano/IMG_0036_stitch.jpg"
+
+    [wallpaper.last]
+    path = "/home/felix/Pictures/wallpaper-pano/IMG_0036_stitch.jpg"
+
+    [wallpaper.monitors.DP-3]
+    path = "/home/felix/Pictures/wallpaper-pano/IMG_0036_stitch.jpg"
+
+    [wallpaper.monitors.HDMI-A-1]
+    path = "/home/felix/Pictures/wallpaper-pano/IMG_0036_stitch.jpg"
+
+[widget.active_window]
+max_length = 603
+
+[widget.audio_visualizer]
+bands = 28
+color_1 = "on_surface"
+color_2 = "on_surface"
+enabled = false
+interactive = false
+mirrored = false
+
+[widget.bar]
+enabled = false
+type = "raycursive/discord-voice:bar"
+
+[widget.clipboard]
+enabled = false
+
+[widget.clock]
+format = "{:%H:%M:%S}"
+
+[widget.control-center]
+enabled = false
+
+[widget.cpu]
+display = "graph"
+visualization = "graph"
+
+[widget.date]
+format = "{:%Y-%m-%d}"
+
+[widget.media]
+art_size = 25
+hide_artist = true
+hide_when_no_media = true
+max_length = 503
+min_length = 0
+title_scroll = "on_hover"
+
+[widget.network]
+show_label = false
+
+[widget.network_rx]
+display = "text"
+stat = "disk_free"
+visualization = "none"
+
+[widget.network_tx]
+enabled = false
+
+[widget.ram]
+display = "text"
+stat = "ram_pct"
+visualization = "none"
+
+[widget.sysmon]
+enabled = false
+
+[widget.temp]
+display = "text"
+visualization = "none"
+
+[widget.text_2]
+scale = 1.3
+text = ""
+type = "text"
+
+[widget.tray]
+drawer = true
+pinned = [ "discord", "steam" ]
+
+[widget.widget]
+type = "yuuto/arch-updater:widget"
+
+[widget.widget_2]
+type = "thepunkoff/pomodoro:widget"
+
+[widget.widget_3]
+capsule = true
+type = "weinguyen/procmon:widget"
+
+    [widget.widget_3.actions]
+    left = "panel-open tordex/processes:panel mem"
+
+[widget.widget_4]
+type = "aabidk20/yt-music:widget"
+
+[widget.workspaces]
+show_labels = false

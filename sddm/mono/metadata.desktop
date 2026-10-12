@@ -1,0 +1,9 @@
+[SddmGreeterTheme]
+Name=mono
+Description=Black and white login: user and password only
+Author=felix
+Version=1.0
+Type=sddm-theme
+MainScript=Main.qml
+Theme-Id=mono
+Theme-API=2.0
